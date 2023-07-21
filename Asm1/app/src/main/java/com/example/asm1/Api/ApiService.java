@@ -20,8 +20,10 @@ public interface ApiService {
 
     Gson gson = new GsonBuilder().setDateFormat("dd-MM-yyyy").create();
 
+    // ip may ao connect localhost: 10.0.2.2
+    // genymontion: 10.0.3.2
     ApiService apiService = new Retrofit.Builder()
-            .baseUrl("http://192.168.1.3:8000/")
+            .baseUrl("http://10.0.2.2:8000/")
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(ApiService.class);
@@ -30,7 +32,7 @@ public interface ApiService {
     Call<List<ProductModel>> getProduct();
 
     @POST("addCars")
-    Call<ProductModel> addCar(@Body ProductModel productModel);
+    Call<List<ProductModel>> addCar(@Body ProductModel productModel);
 
     @PUT("cars/{id}")
     Call<ProductModel> updateCar(@Path("id") String id, @Body ProductModel productModel);

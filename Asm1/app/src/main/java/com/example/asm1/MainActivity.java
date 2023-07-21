@@ -118,24 +118,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         product.setName(name);
         product.setPrice(price);
         product.setQuantity(quantity);
-        ApiService.apiService.addCar(product).enqueue(new Callback<ProductModel>() {
+
+        ApiService.apiService.addCar(product).enqueue(new Callback<List<ProductModel>>() {
             @Override
-            public void onResponse(Call<ProductModel> call, Response<ProductModel> response) {
+            public void onResponse(Call<List<ProductModel>> call, Response<List<ProductModel>> response) {
                 if (response.isSuccessful()) {
                     // Xử lý thành công
                     Toast.makeText(MainActivity.this, "Thêm dữ liệu thành công", Toast.LENGTH_SHORT).show();
+
+                    List<ProductModel> tableItems = response.body();
+                    if (tableItems != null) {
+                        adapter.setTableItems(tableItems);
+                        adapter.notifyDataSetChanged();
+                    }
                 } else {
                     // Xử lý lỗi khi thêm dữ liệu
                     Toast.makeText(MainActivity.this, "Lỗi khi thêm dữ liệu", Toast.LENGTH_SHORT).show();
                 }
-                callApiGetTableList();
             }
 
             @Override
-            public void onFailure(Call<ProductModel> call, Throwable t) {
+            public void onFailure(Call<List<ProductModel>> call, Throwable t) {
                 Toast.makeText(MainActivity.this, "Lỗi mạng", Toast.LENGTH_SHORT).show();
             }
         });
+//        ApiService.apiService.addCar(product).enqueue(new Callback<ProductModel>() {
+//            @Override
+//            public void onResponse(Call<ProductModel> call, Response<ProductModel> response) {
+//                if (response.isSuccessful()) {
+//                    // Xử lý thành công
+//                    Toast.makeText(MainActivity.this, "Thêm dữ liệu thành công", Toast.LENGTH_SHORT).show();
+//
+//                    List<ProductModel> tableItems = response.body();
+//                    if (tableItems != null) {
+//                        adapter.setTableItems(tableItems);
+//                        adapter.notifyDataSetChanged();
+//                    }
+//                } else {
+//                    // Xử lý lỗi khi thêm dữ liệu
+//                    Toast.makeText(MainActivity.this, "Lỗi khi thêm dữ liệu", Toast.LENGTH_SHORT).show();
+//                }
+//                //callApiGetTableList();
+//
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ProductModel> call, Throwable t) {
+//                Toast.makeText(MainActivity.this, "Lỗi mạng", Toast.LENGTH_SHORT).show();
+//            }
+//        });
     }
 
     private void updateCar(String id, String name, int price, int quantity) {
