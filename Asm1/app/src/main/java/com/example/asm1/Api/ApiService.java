@@ -23,7 +23,7 @@ public interface ApiService {
     // ip may ao connect localhost: 10.0.2.2
     // genymontion: 10.0.3.2
     ApiService apiService = new Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:8000/")
+            .baseUrl("http://10.24.48.232:8000/")
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(ApiService.class);
@@ -35,9 +35,9 @@ public interface ApiService {
     Call<List<ProductModel>> addCar(@Body ProductModel productModel);
 
     @PUT("cars/{id}")
-    Call<ProductModel> updateCar(@Path("id") String id, @Body ProductModel productModel);
+    Call<List<ProductModel>> updateCar(@Path("id") String id, @Body ProductModel productModel);
 
     @DELETE("/cars/{id}")
-    Call<Void> deleteCars(@Path("id") String id);
+    Call<List<ProductModel>> deleteCars(@Path("id") String id);
 
 }

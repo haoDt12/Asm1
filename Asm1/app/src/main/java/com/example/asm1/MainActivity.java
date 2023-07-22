@@ -97,11 +97,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String name = edtName.getText().toString();
-                int price = Integer.valueOf(edtPrice.getText().toString());
-                int quantity = Integer.valueOf(edtQuantity.getText().toString());
-                addNewData(name, price, quantity);
-                dialog.dismiss();
+                String name = edtName.getText().toString().trim();
+                String price = edtPrice.getText().toString().trim();
+                String quantity = edtQuantity.getText().toString().trim();
+                if (name.isEmpty() || price.isEmpty() || quantity.isEmpty()){
+                    Toast.makeText(MainActivity.this, "Không được để trống", Toast.LENGTH_SHORT).show();
+                }else {
+                    addNewData(name, Integer.parseInt(price),Integer.parseInt(quantity));
+                    dialog.dismiss();
+                }
+
             }
         });
         btnCanel.setOnClickListener(new View.OnClickListener() {
@@ -142,31 +147,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Toast.makeText(MainActivity.this, "Lỗi mạng", Toast.LENGTH_SHORT).show();
             }
         });
-//        ApiService.apiService.addCar(product).enqueue(new Callback<ProductModel>() {
-//            @Override
-//            public void onResponse(Call<ProductModel> call, Response<ProductModel> response) {
-//                if (response.isSuccessful()) {
-//                    // Xử lý thành công
-//                    Toast.makeText(MainActivity.this, "Thêm dữ liệu thành công", Toast.LENGTH_SHORT).show();
-//
-//                    List<ProductModel> tableItems = response.body();
-//                    if (tableItems != null) {
-//                        adapter.setTableItems(tableItems);
-//                        adapter.notifyDataSetChanged();
-//                    }
-//                } else {
-//                    // Xử lý lỗi khi thêm dữ liệu
-//                    Toast.makeText(MainActivity.this, "Lỗi khi thêm dữ liệu", Toast.LENGTH_SHORT).show();
-//                }
-//                //callApiGetTableList();
-//
-//            }
-//
-//            @Override
-//            public void onFailure(Call<ProductModel> call, Throwable t) {
-//                Toast.makeText(MainActivity.this, "Lỗi mạng", Toast.LENGTH_SHORT).show();
-//            }
-//        });
     }
 
     private void updateCar(String id, String name, int price, int quantity) {
@@ -175,21 +155,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         productModel.setPrice(price);
         productModel.setQuantity(quantity);
 
-        Call<ProductModel> call = ApiService.apiService.updateCar(id, productModel);
-        call.enqueue(new Callback<ProductModel>() {
+        Call<List<ProductModel>> call = ApiService.apiService.updateCar(id, productModel);
+        call.enqueue(new Callback<List<ProductModel>>() {
             @Override
-            public void onResponse(Call<ProductModel> call, Response<ProductModel> response) {
+            public void onResponse(Call<List<ProductModel>> call, Response<List<ProductModel>> response) {
                 if (response.isSuccessful()) {
-                    ProductModel updatedProduct = response.body();
+                    //ProductModel updatedProduct = response.body();
                     Toast.makeText(MainActivity.this, "Sửa thành công", Toast.LENGTH_SHORT).show();
-                    callApiGetTableList();
+                    //callApiGetTableList();
+                    List<ProductModel> tableItems = response.body();
+                    if (tableItems != null) {
+                        adapter.setTableItems(tableItems);
+                        adapter.notifyDataSetChanged();
+                    }
                 } else {
                     Log.d("MAIN", "Respone Fail" + response.message());
                 }
             }
 
             @Override
-            public void onFailure(Call<ProductModel> call, Throwable t) {
+            public void onFailure(Call<List<ProductModel>> call, Throwable t) {
                 Log.d("MAIN", "Respone Fail" + t.getMessage());
             }
         });
@@ -218,11 +203,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         btnEdit.setOnClickListener(v -> {
             String name = edName.getText().toString().trim();
-            int price = Integer.parseInt(edPrice.getText().toString().trim());
-            int quantity = Integer.parseInt(edQuantity.getText().toString().trim());
-
-            updateCar(model.getId(), name, price, quantity);
-            dialog.dismiss();
+            String price = edPrice.getText().toString().trim();
+            String quantity = edQuantity.getText().toString().trim();
+            if (name.isEmpty() || price.isEmpty() || quantity.isEmpty()){
+                Toast.makeText(this, "Không được để trống", Toast.LENGTH_SHORT).show();
+            }else{
+                updateCar(model.getId(), name, Integer.parseInt(price), Integer.parseInt(quantity));
+                dialog.dismiss();
+            }
         });
 
         btnCancel.setOnClickListener(v -> {
@@ -244,20 +232,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
     private void deleteProduct(ProductModel model) {
         String id = model.getId();
-        Call<Void> call = ApiService.apiService.deleteCars(id);
-        call.enqueue(new Callback<Void>() {
+        Call<List<ProductModel>> call = ApiService.apiService.deleteCars(id);
+        call.enqueue(new Callback<List<ProductModel>>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Call<List<ProductModel>> call, Response<List<ProductModel>> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(MainActivity.this, "Xóa thành công", Toast.LENGTH_SHORT).show();
-                    callApiGetTableList();
+                    List<ProductModel> tableItems = response.body();
+                    if (tableItems != null) {
+                        adapter.setTableItems(tableItems);
+                        adapter.notifyDataSetChanged();
+                    }
+                    //callApiGetTableList();
                 } else {
                     Log.d("MAIN", "Respone Fail" + response.message());
                 }
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Call<List<ProductModel>> call, Throwable t) {
                 Log.d("MAIN", "Respone Fail" + t.getMessage());
             }
         });
