@@ -24,24 +24,25 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/listCar', async function (req, res) {
 
     try {
-        const carList = await CarModel.find().lean();
         console.log('Da ket noi voi MongoDB');
-        res.json(carList);
+        getListCarAndRespone(res);
       } catch (err) {
         console.error('Error fetching products:', err);
         res.status(500).json({ error: 'Internal server error' });
       }
 })
+async function getListCarAndRespone(res){
+  const carList = await CarModel.find().lean();
+  res.json(carList);
+}
 
 // Định nghĩa API thêm sản phẩm
 app.post('/addCars', async (req, res) => {
   try {
-    const { name, price, quantity } = req.body;
-    const car = new CarModel({ name, price, quantity });
+    const { name, price,color,img,description,quantity } = req.body;
+    const car = new CarModel({ name, price,color,img,description,quantity });
     await car.save();
-    //res.json(car);
-    const carList = await CarModel.find().lean();
-    res.json(carList);
+    getListCarAndRespone(res);
   } catch (err) {
     console.error('Error adding product:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -52,15 +53,13 @@ app.post('/addCars', async (req, res) => {
 app.put('/cars/:carId', async (req, res) => {
   try {
     const { carId } = req.params;
-    const { name, price, quantity } = req.body;
+    const { name, price,color,img,description,quantity } = req.body;
     const car = await CarModel.findByIdAndUpdate(
       carId,
-      { name, price, quantity },
+      { name, price,color,img,description,quantity },
       { new: true }
     );
-    const carList = await CarModel.find().lean();
-    res.json(carList);
-    //res.json(car);
+    getListCarAndRespone(res);
   } catch (err) {
     console.error('Error updating product:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -72,9 +71,7 @@ app.delete('/cars/:carId', async (req, res) => {
   try {
     const { carId } = req.params;
     await CarModel.findByIdAndRemove(carId);
-    const carList = await CarModel.find().lean();
-    res.json(carList);
-    //res.json({ success: true });
+    getListCarAndRespone(res);
   } catch (err) {
     console.error('Error deleting product:', err);
     res.status(500).json({ error: 'Internal server error' });

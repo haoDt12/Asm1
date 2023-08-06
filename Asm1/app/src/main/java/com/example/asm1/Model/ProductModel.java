@@ -8,17 +8,23 @@ public class ProductModel{
     private String id;
     private String name;
     private int price;
+    private String color;
+    private String img;
     private int quantity;
+    private String description;
 
 
     public ProductModel() {
     }
 
-    public ProductModel(String id, String name, int price, int quantity) {
+    public ProductModel(String id, String name, int price, String color, String img, int quantity, String description) {
         this.id = id;
         this.name = name;
         this.price = price;
+        this.color = color;
+        this.img = img;
         this.quantity = quantity;
+        this.description = description;
     }
 
     public String getName() {
@@ -51,5 +57,29 @@ public class ProductModel{
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public String getImg() {
+        return img;
+    }
+
+    public void setImg(String img) {
+        this.img = img;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

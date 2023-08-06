@@ -1,10 +1,12 @@
 package com.example.asm1.Adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.helper.widget.Layer;
@@ -45,7 +47,9 @@ public class TableListAdapter extends RecyclerView.Adapter<TableListAdapter.Tabl
         holder.priceTextView.setText(String.valueOf(model.getPrice()));
         holder.nameTextView.setText(model.getName());
         holder.quantityTextView.setText(String.valueOf(model.getQuantity()));
-//        Picasso.get().load(album.getUrl()).into(holder.img);
+        holder.tvColor.setText(model.getColor());
+        holder.tvDescription.setText(model.getDescription());
+        Picasso.get().load(model.getImg()).into(holder.imgProduct);
         holder.imgEdit.setOnClickListener(view -> {
             callback.editPr(model);
         });
@@ -62,6 +66,10 @@ public class TableListAdapter extends RecyclerView.Adapter<TableListAdapter.Tabl
     public class TableViewHolder extends RecyclerView.ViewHolder {
         private TextView nameTextView;
         private TextView priceTextView;
+        private ImageView imgProduct;
+        private TextView tvColor;
+        private TextView tvDescription;
+
         private TextView quantityTextView;
         private ImageView imgEdit;
         private ImageView imgDelete;
@@ -70,6 +78,9 @@ public class TableListAdapter extends RecyclerView.Adapter<TableListAdapter.Tabl
             super(itemView);
             nameTextView = itemView.findViewById(R.id.tv_name);
             priceTextView = itemView.findViewById(R.id.tv_price);
+            imgProduct = itemView.findViewById(R.id.img_product);
+            tvColor = itemView.findViewById(R.id.tv_color);
+            tvDescription = itemView.findViewById(R.id.tv_description);
             quantityTextView = itemView.findViewById(R.id.tv_quantity);
             imgDelete = (ImageView) itemView.findViewById(R.id.img_delete);
             imgEdit = (ImageView) itemView.findViewById(R.id.img_edit);

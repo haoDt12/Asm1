@@ -23,7 +23,7 @@ public interface ApiService {
     // ip may ao connect localhost: 10.0.2.2
     // genymontion: 10.0.3.2
     ApiService apiService = new Retrofit.Builder()
-            .baseUrl("http://10.24.48.232:8000/")
+            .baseUrl("http://192.168.1.4:8000/")
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(ApiService.class);

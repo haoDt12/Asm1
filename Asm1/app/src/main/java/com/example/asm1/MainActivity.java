@@ -6,10 +6,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -26,11 +29,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener,TableListAdapter.Callback {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, TableListAdapter.Callback {
     private RecyclerView rcvProduct;
     private TableListAdapter adapter;
     private FloatingActionButton fab;
     private List<ProductModel> mList;
+    private String[] colorOptions = {"Blue", "Red", "Brown", "Yellow", "Green", "Orange", "Purple", "Pink", "Black", "White"};
 
 
     @Override
@@ -53,6 +57,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    private void hienThiDuLieu(List<ProductModel> tableItems) {
+        if (tableItems != null) {
+            adapter.setTableItems(tableItems);
+            adapter.notifyDataSetChanged();
+        }
+    }
 
     private void callApiGetTableList() {
         // lay danh sach
@@ -61,10 +71,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onResponse(Call<List<ProductModel>> call, Response<List<ProductModel>> response) {
                 if (response.isSuccessful()) {
                     List<ProductModel> tableItems = response.body();
-                    if (tableItems != null) {
-                        adapter.setTableItems(tableItems);
-                        adapter.notifyDataSetChanged();
-                    }
+                    hienThiDuLieu(tableItems);
                 } else {
                     Toast.makeText(MainActivity.this, "Failed to retrieve table list", Toast.LENGTH_SHORT).show();
                 }
@@ -79,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.FullScreenDialogTheme);
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.add_product, null);
         builder.setView(dialogView);
@@ -87,11 +94,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final EditText edtName = dialogView.findViewById(R.id.edt_name);
         final EditText edtPrice = dialogView.findViewById(R.id.edt_price);
         final EditText edtQuantity = dialogView.findViewById(R.id.edt_quantity);
+        final EditText edtColor = dialogView.findViewById(R.id.edt_color);
+        final EditText edtImg = dialogView.findViewById(R.id.edt_img);
+        final EditText edtDescription = dialogView.findViewById(R.id.edt_description);
         final Button btnAdd = dialogView.findViewById(R.id.btn_add);
         final Button btnCanel = dialogView.findViewById(R.id.btn_canel);
 
-
         final AlertDialog dialog = builder.create();
+        edtColor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder colorDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                colorDialogBuilder.setTitle("Choose Color");
+                colorDialogBuilder.setItems(colorOptions, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String selectedColor = colorOptions[which];
+                        edtColor.setText(selectedColor);
+                    }
+                });
+                AlertDialog colorDialog = colorDialogBuilder.create();
+                colorDialog.show();
+            }
+        });
+
         dialog.show();
 
         btnAdd.setOnClickListener(new View.OnClickListener() {
@@ -99,11 +125,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onClick(View v) {
                 String name = edtName.getText().toString().trim();
                 String price = edtPrice.getText().toString().trim();
+                String color = edtColor.getText().toString().trim();
+                String img = edtImg.getText().toString().trim();
+                String description = edtDescription.getText().toString().trim();
                 String quantity = edtQuantity.getText().toString().trim();
-                if (name.isEmpty() || price.isEmpty() || quantity.isEmpty()){
+                if (name.isEmpty() || price.isEmpty() || quantity.isEmpty() || color.isEmpty() || img.isEmpty() || description.isEmpty()) {
                     Toast.makeText(MainActivity.this, "Không được để trống", Toast.LENGTH_SHORT).show();
-                }else {
-                    addNewData(name, Integer.parseInt(price),Integer.parseInt(quantity));
+                } else {
+                    addNewData(name, Integer.parseInt(price), color, img, Integer.parseInt(quantity), description);
                     dialog.dismiss();
                 }
 
@@ -118,10 +147,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void addNewData(String name, Integer price, Integer quantity) {
+    private void addNewData(String name, int price, String color, String img, int quantity, String description) {
         ProductModel product = new ProductModel();
         product.setName(name);
         product.setPrice(price);
+        product.setColor(color);
+        product.setImg(img);
+        product.setDescription(description);
         product.setQuantity(quantity);
 
         ApiService.apiService.addCar(product).enqueue(new Callback<List<ProductModel>>() {
@@ -132,10 +164,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Toast.makeText(MainActivity.this, "Thêm dữ liệu thành công", Toast.LENGTH_SHORT).show();
 
                     List<ProductModel> tableItems = response.body();
-                    if (tableItems != null) {
-                        adapter.setTableItems(tableItems);
-                        adapter.notifyDataSetChanged();
-                    }
+                    hienThiDuLieu(tableItems);
                 } else {
                     // Xử lý lỗi khi thêm dữ liệu
                     Toast.makeText(MainActivity.this, "Lỗi khi thêm dữ liệu", Toast.LENGTH_SHORT).show();
@@ -149,10 +178,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    private void updateCar(String id, String name, int price, int quantity) {
+    private void updateCar(String id, String name, int price, String color, String img, int quantity, String description) {
         ProductModel productModel = new ProductModel();
         productModel.setName(name);
         productModel.setPrice(price);
+        productModel.setColor(color);
+        productModel.setImg(img);
+        productModel.setDescription(description);
         productModel.setQuantity(quantity);
 
         Call<List<ProductModel>> call = ApiService.apiService.updateCar(id, productModel);
@@ -160,14 +192,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onResponse(Call<List<ProductModel>> call, Response<List<ProductModel>> response) {
                 if (response.isSuccessful()) {
-                    //ProductModel updatedProduct = response.body();
                     Toast.makeText(MainActivity.this, "Sửa thành công", Toast.LENGTH_SHORT).show();
-                    //callApiGetTableList();
                     List<ProductModel> tableItems = response.body();
-                    if (tableItems != null) {
-                        adapter.setTableItems(tableItems);
-                        adapter.notifyDataSetChanged();
-                    }
+                    hienThiDuLieu(tableItems);
                 } else {
                     Log.d("MAIN", "Respone Fail" + response.message());
                 }
@@ -182,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void editPr(ProductModel model) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.FullScreenDialogTheme);
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.add_product, null);
         builder.setView(dialogView);
@@ -192,23 +219,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         EditText edName = dialog.findViewById(R.id.edt_name);
         EditText edPrice = dialog.findViewById(R.id.edt_price);
+        EditText edColor = dialog.findViewById(R.id.edt_color);
+        EditText edImg = dialog.findViewById(R.id.edt_img);
+        EditText edDescription = dialog.findViewById(R.id.edt_description);
         EditText edQuantity = dialog.findViewById(R.id.edt_quantity);
+
         Button btnEdit = dialog.findViewById(R.id.btn_add);
         Button btnCancel = dialog.findViewById(R.id.btn_canel);
 
         btnEdit.setText("Sửa");
         edName.setText(model.getName());
         edPrice.setText(String.valueOf(model.getPrice()));
+        edColor.setText(model.getColor());
+        edImg.setText(model.getImg());
+        edDescription.setText(model.getDescription());
         edQuantity.setText(String.valueOf(model.getQuantity()));
 
         btnEdit.setOnClickListener(v -> {
             String name = edName.getText().toString().trim();
             String price = edPrice.getText().toString().trim();
+            String color = edColor.getText().toString().trim();
+            String img = edImg.getText().toString().trim();
+            String description = edDescription.getText().toString().trim();
             String quantity = edQuantity.getText().toString().trim();
-            if (name.isEmpty() || price.isEmpty() || quantity.isEmpty()){
+            if (name.isEmpty() || price.isEmpty() || quantity.isEmpty() || color.isEmpty() || description.isEmpty() || img.isEmpty()) {
                 Toast.makeText(this, "Không được để trống", Toast.LENGTH_SHORT).show();
-            }else{
-                updateCar(model.getId(), name, Integer.parseInt(price), Integer.parseInt(quantity));
+            } else {
+                updateCar(model.getId(), name, Integer.parseInt(price), color, img, Integer.parseInt(quantity), description);
                 dialog.dismiss();
             }
         });
@@ -230,6 +267,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
     private void deleteProduct(ProductModel model) {
         String id = model.getId();
         Call<List<ProductModel>> call = ApiService.apiService.deleteCars(id);
@@ -239,10 +277,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (response.isSuccessful()) {
                     Toast.makeText(MainActivity.this, "Xóa thành công", Toast.LENGTH_SHORT).show();
                     List<ProductModel> tableItems = response.body();
-                    if (tableItems != null) {
-                        adapter.setTableItems(tableItems);
-                        adapter.notifyDataSetChanged();
-                    }
+                    hienThiDuLieu(tableItems);
                     //callApiGetTableList();
                 } else {
                     Log.d("MAIN", "Respone Fail" + response.message());

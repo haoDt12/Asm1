@@ -8,8 +8,20 @@ const CarSchema = new mongoose.Schema({
         type: Number,
         require: true
     },
+    color:{
+        type:String,
+        require: true
+    },
+    img:{
+        type:String,
+        require: true
+    },
     quantity: {
         type: Number,
+        require: true
+    },
+    description: {
+        type: String,
         require: true
     },
 })
